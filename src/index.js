@@ -1,37 +1,31 @@
-// importing the dependencies
-require('dotenv').config()
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
+import express from "express";
+import pino from "pino";
+import pinoHttp from "pino-http";
+import apiRouter from "./routers/api.js";
+import VPSDataHelper from "./helpers/VPSDataHelper.js";
+
 const PORT = 5080;
-const v1Router = require('./routers/api.v1')
-const {VPSDataHelper} = require('./helpers/VPSDataHelper')
 
-// defining the Express app
 const app = express();
+const logger = pino();
+const httpLogger = pinoHttp({ logger });
 
-// adding Helmet to enhance your API's security
-app.use(helmet());
+app.use(httpLogger);
+app.use(express.json());
 
-// using bodyParser to parse JSON bodies into JS objects
-app.use(bodyParser.json());
-
-// enabling CORS for all requests
-app.use(cors());
-
-// adding morgan to log HTTP requests
-app.use(morgan('combined'));
-
-app.use('/api/v1', async function (req, res, next) {
-  let vpsDataHelper = new VPSDataHelper();
-  const json = await vpsDataHelper.getJson(); 
-  req.vpsData = json;
-  next();
-}, v1Router);
+// routing
+app.use(
+  "/api/v1",
+  async function (req, res, next) {
+    let vpsDataHelper = new VPSDataHelper();
+    const json = await vpsDataHelper.getJson();
+    req.vpsData = json;
+    next();
+  },
+  apiRouter
+);
 
 // starting the server
 app.listen(PORT, () => {
-  console.log(`listening on port ${PORT} `);
+  console.log(`listening on port ${PORT}`);
 });

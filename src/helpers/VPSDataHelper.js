@@ -1,14 +1,15 @@
-require('dotenv').config()
-const fetch = require('node-fetch')
+import fetch from "node-fetch";
 
 class VPSDataHelper {
-    constructor() {}
+  constructor() {}
 
-    async getJson() {
-        const res = await fetch(process.env.VPS_DATA_URI);
-        const json = await res.json();
-        return json;
-    }
+  async getJson() {
+    const res = await fetch(
+      "https://virtualpinballspreadsheet.github.io/vps-db/db/vpsdb.json"
+    );
+    const json = await res.json();
+    return json;
+  }
 }
 
-module.exports.VPSDataHelper = VPSDataHelper
+export default VPSDataHelper;
